@@ -1,0 +1,6 @@
+[submodule "exomatique-frontend"]
+	path = exomatique-frontend
+	url = https://github.com/Pedagologues/exomatique-frontend
+[submodule "exomatique-backend"]
+	path = exomatique-backend
+	url = https://github.com/Pedagologues/exomatique-backend
