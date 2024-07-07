@@ -13,8 +13,16 @@
   "license": "ISC",
   "dependencies": {
     "@trpc/server": "^10.45.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/dotenv": "^8.2.0",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/mongoose": "^5.11.97",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

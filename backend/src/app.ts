@@ -1,9 +1,9 @@
 import * as trpcExpress from "@trpc/server/adapters/express";
 
-import cors from "cors";
-import express, { Request, Response } from "express";
 import { publicProcedure, router } from "@backend/trpc";
 import { router as UserRouter } from "@backend/user/router";
+import cors from "cors";
+import express from "express";
 
 const createContext = ({
   req,
