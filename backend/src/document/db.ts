@@ -18,6 +18,10 @@ const Document = connection.model(
       type: Boolean,
       required: true,
     },
+    metadata: {
+      type: String,
+      required: true,
+    },
   })
 );
 

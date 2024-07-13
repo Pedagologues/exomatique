@@ -10,6 +10,12 @@ const bytes_validation_zod = z
     { message: "bytes must be defined" }
   );
 
+const metadata_validation_zod = z
+  .any()
+  .refine((val: any) => val !== undefined && typeof val === "object", {
+    message: "Metadata should be a valid json object",
+  });
+
 export const router = global_router({
   create: publicProcedure
     .input(
@@ -17,11 +23,12 @@ export const router = global_router({
         token: z.string(),
         is_private: z.boolean(),
         bytes: z.optional(bytes_validation_zod),
+        metadata: z.optional(metadata_validation_zod),
       })
     )
     .mutation((req) => {
       const input = req.input;
-      return create(input.token, input.is_private, input.bytes);
+      return create(input.token, input.is_private, input.bytes, input.metadata);
     }),
   get: publicProcedure
     .input(
@@ -40,12 +47,14 @@ export const router = global_router({
       z.object({
         document_id: z.string(),
         token: z.string(),
-        bytes: bytes_validation_zod,
+        bytes: z.optional(bytes_validation_zod),
+        metadata: z.optional(metadata_validation_zod),
       })
     )
     .mutation((req) => {
       const input = req.input;
-      set(input.document_id, input.token, input.bytes);
+      if (input.bytes == null && input.metadata == null) return;
+      set(input.document_id, input.token, input.bytes, input.metadata);
     }),
 
   remove: publicProcedure

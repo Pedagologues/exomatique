@@ -6,7 +6,11 @@ export async function get(document_id: string, access_token?: string) {
 
   if (file == null) throw new Error("Could not find Document");
 
-  if (!file?.is_private) return file?.bytes;
+  if (!file?.is_private)
+    return {
+      bytes: file?.bytes.toJSON().data,
+      metadata: JSON.parse(file.metadata),
+    };
 
   if (access_token == null)
     throw new Error(
@@ -20,13 +24,17 @@ export async function get(document_id: string, access_token?: string) {
       "Document is private and you are not authorized to view it"
     );
 
-  return file?.bytes;
+  return {
+    bytes: file?.bytes.toJSON().data,
+    metadata: JSON.parse(file.metadata),
+  };
 }
 
 export async function set(
   document_id: string,
   access_token: string,
-  data: Buffer
+  bytes?: Buffer,
+  metadata?: any
 ) {
   const file = await Document.findById(document_id);
 
@@ -41,7 +49,8 @@ export async function set(
     { _id: document_id },
     {
       $set: {
-        bytes: data,
+        bytes,
+        metadata: metadata == null ? undefined : JSON.stringify(metadata),
       },
     }
   );
@@ -54,7 +63,8 @@ export async function set(
 export async function create(
   access_token: string,
   is_private: boolean,
-  bytes?: Buffer
+  bytes?: Buffer,
+  metadata?: any
 ): Promise<string> {
   let author = await loginFromToken(access_token).then((v) => v.id);
 
@@ -62,6 +72,7 @@ export async function create(
     author,
     is_private,
     bytes,
+    metadata: metadata == null ? "{}" : JSON.stringify(metadata),
   });
 
   return file._id.toString();
