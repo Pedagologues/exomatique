@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router as global_router, publicProcedure } from "../trpc";
-import { create, get, remove, set } from "./internal";
+import { create, get, link, set, unlink } from "./internal";
 
 const bytes_validation_zod = z
   .any()
@@ -22,13 +22,33 @@ export const router = global_router({
       z.object({
         token: z.string(),
         is_private: z.boolean(),
+        parent: z.string(),
         bytes: z.optional(bytes_validation_zod),
         metadata: z.optional(metadata_validation_zod),
       })
     )
     .mutation((req) => {
       const input = req.input;
-      return create(input.token, input.is_private, input.bytes, input.metadata);
+      return create(
+        input.token,
+        input.parent,
+        input.is_private,
+        input.bytes,
+        input.metadata
+      );
+    }),
+
+  link: publicProcedure
+    .input(
+      z.object({
+        document_id: z.string(),
+        parent: z.string(),
+        token: z.string(),
+      })
+    )
+    .mutation((req) => {
+      const input = req.input;
+      return link(input.document_id, input.parent, input.token);
     }),
   get: publicProcedure
     .input(
@@ -57,15 +77,16 @@ export const router = global_router({
       set(input.document_id, input.token, input.bytes, input.metadata);
     }),
 
-  remove: publicProcedure
+  unlink: publicProcedure
     .input(
       z.object({
         document_id: z.string(),
+        parent: z.string(),
         token: z.string(),
       })
     )
     .mutation((req) => {
       const input = req.input;
-      remove(input.document_id, input.token);
+      unlink(input.document_id, input.parent, input.token);
     }),
 });

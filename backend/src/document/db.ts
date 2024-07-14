@@ -22,6 +22,18 @@ const Document = connection.model(
       type: String,
       required: true,
     },
+    parents: {
+      type: [String],
+      required: true,
+    },
+    created: {
+      type: Date,
+      required: true,
+    },
+    updated: {
+      type: Date,
+      required: true,
+    },
   })
 );
 
