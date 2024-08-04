@@ -46,9 +46,9 @@ export const router = global_router({
         token: z.string(),
       })
     )
-    .mutation((req) => {
+    .mutation(async (req) => {
       const input = req.input;
-      return link(input.document_id, input.parent, input.token);
+      return await link(input.document_id, input.parent, input.token);
     }),
   get: publicProcedure
     .input(
@@ -57,9 +57,9 @@ export const router = global_router({
         token: z.optional(z.string()),
       })
     )
-    .query((req) => {
+    .query(async (req) => {
       const input = req.input;
-      return get(input.document_id, input.token);
+      return await get(input.document_id, input.token);
     }),
 
   set: publicProcedure
@@ -71,10 +71,15 @@ export const router = global_router({
         metadata: z.optional(metadata_validation_zod),
       })
     )
-    .mutation((req) => {
+    .mutation(async (req) => {
       const input = req.input;
       if (input.bytes == null && input.metadata == null) return;
-      set(input.document_id, input.token, input.bytes, input.metadata);
+      return await set(
+        input.document_id,
+        input.token,
+        input.bytes,
+        input.metadata
+      );
     }),
 
   unlink: publicProcedure
@@ -85,8 +90,8 @@ export const router = global_router({
         token: z.string(),
       })
     )
-    .mutation((req) => {
+    .mutation(async (req) => {
       const input = req.input;
-      unlink(input.document_id, input.parent, input.token);
+      return await unlink(input.document_id, input.parent, input.token);
     }),
 });

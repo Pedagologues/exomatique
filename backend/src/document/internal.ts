@@ -1,12 +1,17 @@
 import { loginFromToken } from "../user/internal";
 import Document from "./db";
+import {
+  DocumentNotFound,
+  MissingPermission,
+  ModificationFailed,
+} from "./error";
 import "./task";
 import { Document as FrontDocument } from "./types";
 
 export async function get(document_id: string, access_token?: string) {
   const document = await Document.findById(document_id);
 
-  if (document == null) throw new Error("Could not find Document");
+  if (document == null) throw new DocumentNotFound(document_id);
 
   if (!document?.is_private)
     return {
@@ -14,17 +19,12 @@ export async function get(document_id: string, access_token?: string) {
       metadata: JSON.parse(document.metadata),
     };
 
-  if (access_token == null)
-    throw new Error(
-      "Document is private and you are not authorized to view it"
-    );
+  if (access_token == null) throw new MissingPermission(document_id, "READ");
 
   let current_user = await loginFromToken(access_token).then((v) => v.id);
 
   if (current_user != document.author.toString())
-    throw new Error(
-      "Document is private and you are not authorized to view it"
-    );
+    throw new MissingPermission(document_id, "READ");
 
   return {
     bytes: document?.bytes.toJSON().data,
@@ -40,12 +40,12 @@ export async function set(
 ) {
   const document = await Document.findById(document_id);
 
-  if (document == null) throw new Error("Could not find Document");
+  if (document == null) throw new DocumentNotFound(document_id);
 
   let current_user = await loginFromToken(access_token).then((v) => v.id);
 
   if (current_user != document.author.toString())
-    throw new Error("Only the author can modify the Document");
+    throw new MissingPermission(document_id, "WRITE");
 
   let v = await Document.updateOne(
     { _id: document_id },
@@ -59,7 +59,7 @@ export async function set(
   );
 
   if (v.upsertedCount == 0) {
-    throw new Error("Document was found but modification failed");
+    throw new ModificationFailed(document_id, `Document is unchanged`);
   }
 }
 
@@ -92,12 +92,12 @@ export async function link(
 ) {
   const document = await Document.findById(document_id);
 
-  if (document == null) throw new Error("Could not find Document");
+  if (document == null) throw new DocumentNotFound(document_id);
 
   let current_user = await loginFromToken(access_token).then((v) => v.id);
 
   if (current_user != document.author.toString())
-    throw new Error("Only the author can modify the Document");
+    throw new MissingPermission(document_id, "LINK");
 
   if (parent in document.parents) {
     throw new Error("Document was found but parent is already present");
@@ -116,16 +116,15 @@ export async function unlink(
 ) {
   const document = await Document.findById(document_id);
 
-  if (document == null) throw new Error("Could not find Document");
+  if (document == null) throw new DocumentNotFound(document_id);
 
   let current_user = await loginFromToken(access_token).then((v) => v.id);
 
   if (current_user != document.author.toString())
-    throw new Error("Only the author can unlink the Document");
+    throw new MissingPermission(document_id, "UNLINK");
 
   if (!document.parents.includes(parent)) {
-    console.log(document.parents);
-    throw new Error("Document was found but parent unlinking failed");
+    throw new ModificationFailed(document_id, `${parent} is not a parent`);
   }
 
   document.parents = document.parents.filter((v) => v !== parent);
