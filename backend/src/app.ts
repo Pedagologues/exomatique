@@ -1,6 +1,7 @@
 import * as trpcExpress from "@trpc/server/adapters/express";
 
 import { router as DocumentRouter } from "@backend/document/router";
+import { router as ProcedureRouter } from "@backend/procedure/router";
 import { publicProcedure, router } from "@backend/trpc";
 import { router as UserRouter } from "@backend/user/router";
 import cors from "cors";
@@ -14,6 +15,7 @@ const createContext = ({
 const appRouter = router({
   ping: publicProcedure.query(() => "Pong"),
   user: UserRouter,
+  procedure: ProcedureRouter,
   document: DocumentRouter,
 });
 
