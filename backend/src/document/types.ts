@@ -1,6 +1,7 @@
 export type Document = {
   author: string;
-  bytes: Buffer;
+  bytes: number[];
   is_private: boolean;
+  children: Map<string, string>;
   metadata: any;
 };

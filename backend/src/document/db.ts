@@ -26,6 +26,11 @@ const Document = connection.model(
       type: [String],
       required: true,
     },
+    children: {
+      type: Map,
+      of: mongoose.Schema.ObjectId,
+      required: true,
+    },
     created: {
       type: Date,
       required: true,
