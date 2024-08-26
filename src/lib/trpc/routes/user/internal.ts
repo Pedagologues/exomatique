@@ -1,6 +1,6 @@
 import { compare, hash } from '$trpc/crypto';
 import Accounts from './db';
-import type { User } from './types';
+import type { DbUser, User } from './types';
 
 const expiration = 7 * 24 * 3600;
 
@@ -41,7 +41,10 @@ export async function token(
 }
 
 export async function tokenToUser(token: string): Promise<User | undefined> {
-	return await Accounts.findOne({ auth_token: token }).then((v) => v as User);
+	return await Accounts.findOne({ auth_token: token }).then(
+		(v) =>
+			({ username: v?.username, auth_expire: v?.auth_expire, auth_token: v?.auth_token }) as User
+	);
 }
 
 export async function register(username: string, password: string): Promise<boolean> {
@@ -60,28 +63,28 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
 	return b == null;
 }
 
-export async function loginFromToken(token: string) {
+export async function loginFromToken(token: string): Promise<User> {
 	let data = await verify(token);
 	if (token == null || !data) throw new Error('Could not login');
 	else {
 		return {
-			name: await tokenToUser(token).then((v) => v?.username),
-			token: data[0],
-			id: data[1],
-			expiration: data[1]
+			_id: data[1],
+			username: (await tokenToUser(token).then((v) => v?.username)) as string,
+			auth_token: data[0],
+			auth_expire: data[2]
 		};
 	}
 }
 
-export async function loginFromPassword(username: string, password: string) {
+export async function loginFromPassword(username: string, password: string): Promise<User> {
 	let token_ = await token(username, password);
 	if (token_ == null) throw new Error('Could not login');
 	else
 		return {
+			_id: token_[1],
 			username: username,
-			token: token_[0],
-			id: token_[1],
-			expiration: token_[2]
+			auth_token: token_[0],
+			auth_expire: token_[2]
 		};
 }
 

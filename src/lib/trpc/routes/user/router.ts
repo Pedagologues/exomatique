@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { globalRouter, publicProcedure } from '$trpc/router';
 
 import { isUsernameAvailable, loginFromPassword, loginFromToken, register } from './internal';
+import type { User } from './types';
 
 export const authentification = async (opts: { input: any; next: () => any }) => {
 	const token = opts.input;
@@ -43,7 +44,7 @@ export const router = globalRouter({
 				z.string()
 			])
 		)
-		.query(async (req) => {
+		.query(async (req): Promise<User> => {
 			const input = req.input;
 			if (typeof input === 'string') {
 				return await loginFromToken(input);

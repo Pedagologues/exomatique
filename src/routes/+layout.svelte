@@ -1,20 +1,63 @@
-<script>
-  import { LightSwitch } from '@skeletonlabs/skeleton';
-  import { AppBar } from '@skeletonlabs/skeleton';
-  import "../app.css";
+<script lang="ts">
+	import { LightSwitch } from '@skeletonlabs/skeleton';
+	import { AppBar } from '@skeletonlabs/skeleton';
+	import { page } from '$app/stores';
+	import { goto, invalidateAll } from '$app/navigation';
+	import '../app.css';
+	import { user } from './store';
+	import { get } from 'svelte/store';
+	import { trpc } from '$trpc/client';
+	import type { User } from '../lib/trpc/routes/user/types';
+
+	export let data;
+
+	function onLoginClick() {
+		if ($page.url.pathname === '/' || $page.url.pathname === '/login')
+			goto(`/login`, { replaceState: false });
+		else goto(`/login?q=${btoa($page.url.pathname)}`, { replaceState: false });
+	}
+
+	async function onLogoutClick() {
+		await fetch('/logout', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		await invalidateAll();
+	}
+
+	$: {
+		if (data.token == null) user.set(undefined);
+		else {
+			trpc($page)
+				.user.login.query(data.token)
+				.then((v) => {
+					user.set(v as User);
+				})
+				.catch((v) => {
+					user.set(undefined);
+				});
+		}
+	}
 </script>
 
-<div>
-  <AppBar>
-    <svelte:fragment slot="lead">
-        Exomatique  
-    </svelte:fragment>
+<div class="flex h-screen flex-col">
+	<AppBar>
+		<svelte:fragment slot="lead">
+			<a href="/">Exomatique</a>
+		</svelte:fragment>
 
-    <div class="flex flex-column gap-x-4 justify-around grow">
-    </div>
-    <svelte:fragment slot="trail">
-      <LightSwitch />
-    </svelte:fragment>
-  </AppBar>
-  <slot />
+		<div class="flex-column flex grow justify-around gap-x-4"></div>
+		<svelte:fragment slot="trail">
+			{#if !data.token}
+				<button type="button" class="variant-filled btn" on:click={onLoginClick}>Login</button>
+			{:else}
+				<button type="button" class="variant-filled btn" on:click={onLogoutClick}>Logout</button>
+			{/if}
+			<LightSwitch />
+		</svelte:fragment>
+	</AppBar>
+	<slot />
 </div>
