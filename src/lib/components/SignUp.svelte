@@ -11,7 +11,7 @@
 
 	let username = '';
 	let password = '';
-	let remember = false;
+	let remember = true;
 </script>
 
 <div class="card flex flex-col gap-y-2 p-4">
@@ -24,12 +24,14 @@
 			formData.set('remember', remember.toString());
 
 			return async ({ result, update }) => {
-				let path = '/';
-				if (q != null) {
-					path = atob(q);
+				if (result.type === 'success') {
+					let path = '/';
+					if (q != null) {
+						path = atob(q);
+					}
+					await goto(path, { replaceState: false });
+					await invalidateAll();
 				}
-				await goto(path, { replaceState: false });
-				await invalidateAll();
 			};
 		}}
 	>
@@ -61,7 +63,7 @@
 				value=""
 				class="h-4rounded w-4 focus:ring-2"
 				bind:checked={remember}
-				disabled={waiting}
+				disabled={true || waiting}
 			/>
 		</div>
 		<span class="text-error-900" hidden={!error}>Could not login</span>
