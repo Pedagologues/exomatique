@@ -44,10 +44,19 @@
 </script>
 
 <div class="flex h-screen flex-col">
-	<AppBar>
+	<AppBar class="">
 		<svelte:fragment slot="lead">
 			<a href="/">Exomatique</a>
 		</svelte:fragment>
+
+		<div class="routes flex grow flex-row justify-evenly gap-2">
+			<a href="/" class:selected={$page.url.pathname === '/'} class="content-center">Accueil</a>
+			<a
+				href="/exercises"
+				class:selected={$page.url.pathname === '/exercises'}
+				class="content-center">Exercices</a
+			>
+		</div>
 
 		<div class="flex-column flex grow justify-around gap-x-4"></div>
 		<svelte:fragment slot="trail">
@@ -61,3 +70,18 @@
 	</AppBar>
 	<slot />
 </div>
+
+<style>
+	.selected {
+		backdrop-filter: brightness(70%);
+	}
+	.routes > a {
+		padding: 10px;
+		border-radius: 5%;
+	}
+
+	.routes > a:not(.selected):hover {
+		backdrop-filter: brightness(80%);
+		transition: 0.2s;
+	}
+</style>
