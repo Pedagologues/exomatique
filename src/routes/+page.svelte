@@ -5,5 +5,3 @@
 	import EditorJs from '../lib/components/editor/EditorJs.svelte';
 	pdfjs.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
 </script>
-
-<EditorJs />
