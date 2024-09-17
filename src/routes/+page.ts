@@ -4,3 +4,5 @@ export const load = async ({ parent }) => {
 		token: token
 	};
 };
+
+export const ssr = false;
