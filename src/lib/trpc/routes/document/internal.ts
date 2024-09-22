@@ -24,7 +24,7 @@ export async function get(document_id: string, access_token?: string): Promise<F
 	if (document?.is_private) {
 		if (access_token == null) throw new MissingPermission(document_id, 'READ');
 
-		let current_user = await loginFromToken(access_token).then((v) => v.id);
+		let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 		if (current_user != document.author.toString())
 			throw new MissingPermission(document_id, 'READ');
@@ -49,7 +49,7 @@ export async function set(
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v.id);
+	let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString()) throw new MissingPermission(document_id, 'WRITE');
 
@@ -76,7 +76,7 @@ export async function create(
 	bytes?: Buffer,
 	metadata?: any
 ): Promise<string> {
-	let author = await loginFromToken(access_token).then((v) => v.id);
+	let author = await loginFromToken(access_token).then((v) => v._id);
 
 	const document = await Document.create({
 		author,
@@ -97,7 +97,7 @@ export async function link(document_id: string, parent: string, access_token: st
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v.id);
+	let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString()) throw new MissingPermission(document_id, 'LINK');
 
@@ -116,7 +116,7 @@ export async function unlink(document_id: string, parent: string, access_token: 
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v.id);
+	let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'UNLINK');
@@ -145,7 +145,7 @@ export async function add_child(
 
 	if (child_document == null) throw new DocumentNotFound(child_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v.id);
+	let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'ADD_CHILD');
@@ -171,7 +171,7 @@ export async function remove_child_from_name(
 
 	const child_id = document.children.get(name);
 
-	let current_user = await loginFromToken(access_token).then((v) => v.id);
+	let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'REMOVE_CHILD');
@@ -209,7 +209,7 @@ export async function get_children(document_id: string, access_token: string) {
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v.id);
+	let current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'LIST_CHILDREN');
