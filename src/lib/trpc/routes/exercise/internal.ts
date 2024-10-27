@@ -1,13 +1,12 @@
-import Exercise from './db';
-import { loginFromToken } from '../user/internal';
-import { create as createDocument } from '../document/internal';
-import { ExerciseNotFound, MissingPermission } from './error';
 import mongoose from 'mongoose';
-import type { QueryWithHelpers } from 'mongoose';
+import { create as createDocument } from '../document/internal';
+import { loginFromToken } from '../user/internal';
+import Exercise from './db';
+import { ExerciseNotFound, MissingPermission } from './error';
 import type { IExercise } from './types';
 
 export async function create(token: string) {
-	let author = await loginFromToken(token).then((v) => v._id);
+	const author = await loginFromToken(token).then((v) => v._id);
 
 	const exercise = await Exercise.create({
 		title: 'Example',
@@ -43,7 +42,7 @@ export async function edit(
 
 	if (exercise == null) throw new ExerciseNotFound(id);
 
-	let current_user = await loginFromToken(token).then((v) => v._id);
+	const current_user = await loginFromToken(token).then((v) => v._id);
 	if (current_user != exercise.author.toString()) throw new MissingPermission(id, 'WRITE');
 	exercise.set(data);
 	await exercise.save();
@@ -64,7 +63,7 @@ export async function get(id: string, token?: string): Promise<IExercise> {
 
 	if (exercise.visibility == 'PRIVATTE') {
 		if (!token) throw new MissingPermission(id, 'READ');
-		let current_user = await loginFromToken(token).then((v) => v._id);
+		const current_user = await loginFromToken(token).then((v) => v._id);
 		if (current_user != exercise.author.toString()) throw new MissingPermission(id, 'READ');
 	}
 
@@ -77,17 +76,16 @@ export async function get(id: string, token?: string): Promise<IExercise> {
 	};
 }
 
-export async function get_tags(): Promise<String[]> {
-	let tags: String[] = (await Exercise.find())
-		.map((v) => v.tags as any)
-		.map((v) => v.map(String))
+export async function get_tags(): Promise<string[]> {
+	const tags: string[] = (await Exercise.find())
+		.map((v) => v.tags as unknown as string[])
 		.reduce((v, v1) => v.concat(v1), []);
 	return [...new Set(tags)];
 }
 
-function escapeRegExp(text: string) {
-	return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-}
+// function escapeRegExp(text: string) {
+// 	return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+// }
 
 export async function get_exercises(
 	begin: number,
@@ -100,9 +98,8 @@ export async function get_exercises(
 ): Promise<IExercise[]> {
 	const viewer = token ? await loginFromToken(token) : undefined;
 
-	const { title, tags } = filter;
-
-	let filter_object: any = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const filter_object: any = {};
 
 	// filter_object.title = { $regex: new RegExp('' + escapeRegExp(title) + '', '') };
 	// filter_object.tags = { $all: tags };
@@ -114,10 +111,7 @@ export async function get_exercises(
 		// filter_object.markForRemoval = undefined;
 	}
 
-	console.log(filter_object);
-
 	const query = await Exercise.find(filter_object).sort({ _id: 1 }).limit(end).skip(begin);
-	console.log(query);
 	return query.map((v) => {
 		return {
 			title: v.title,
@@ -126,5 +120,5 @@ export async function get_exercises(
 			tags: (v.tags.prototype || []).map((e) => e.toString()),
 			directory: v.directory?.toString()
 		};
-	});	
+	});
 }

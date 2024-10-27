@@ -50,7 +50,6 @@ export async function tokenToUser(token: string): Promise<User | undefined> {
 export async function register(username: string, password: string): Promise<boolean> {
 	const b = await Accounts.exists({ username: username });
 	let exist = b == null;
-	console.log('TESSSTTTT ' + exist);
 	if (exist)
 		await Accounts.create({
 			username: username,

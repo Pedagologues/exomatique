@@ -1,13 +1,14 @@
 import { trpc } from '$trpc/client';
 
 export const actions = {
-	login: async (event) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	login: async (event: any) => {
 		const { request, cookies } = event;
 
 		const form = await request.formData();
 		const username = form.get('username') as string;
 		const password = form.get('password') as string;
-		const remember = form.get('remember') === 'true';
+		// const remember = form.get('remember') === 'true';
 
 		try {
 			const v = await trpc(event).user.login.query({ username, password });

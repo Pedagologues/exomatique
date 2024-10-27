@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { trpc } from '$trpc/client';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
+	import '@fortawesome/fontawesome-free/css/all.css';
 	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
 	import '../app.css';
 	import type { User } from '../lib/trpc/routes/user/types';

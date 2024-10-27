@@ -1,13 +1,14 @@
 import { trpc } from '$trpc/client';
 
 export const actions = {
-	register: async (event) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	register: async (event: any) => {
 		const { request, cookies } = event;
 
 		const form = await request.formData();
 		const username = form.get('username') as string;
 		const password = form.get('password') as string;
-		const remember = form.get('remember') === 'true';
+		// const remember = form.get('remember') === 'true';
 
 		try {
 			const created = await trpc(event).user.register.mutate({ username, password });
@@ -28,7 +29,6 @@ export const actions = {
 			} else throw Error('Could not create the user');
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
-			console.log('?');
 			throw Error('Could not create the user');
 		}
 		return;

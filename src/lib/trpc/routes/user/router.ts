@@ -5,11 +5,12 @@ import { z } from 'zod';
 import { isUsernameAvailable, loginFromPassword, loginFromToken, register } from './internal';
 import type { User } from './types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const authentification = async (opts: { input: any; next: () => any }) => {
 	const token = opts.input;
-	let user;
 	try {
-		user = await loginFromToken(token);
+		await loginFromToken(token);
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}

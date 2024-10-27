@@ -1,23 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function () {
-	var HBOX_WARNING_REGEX: any,
-		LATEX_WARNING_REGEX: any,
-		LINES_REGEX: any,
-		LOG_WRAP_LIMIT: any,
-		LatexParser: any,
-		LogText: any,
-		PACKAGE_REGEX: any,
-		PACKAGE_WARNING_REGEX: any,
-		state: any;
-	LOG_WRAP_LIMIT = 79;
-	LATEX_WARNING_REGEX = /^LaTeX Warning: (.*)$/;
-	HBOX_WARNING_REGEX = /^(Over|Under)full \\(v|h)box/;
-	PACKAGE_WARNING_REGEX = /^(Package \b.+\b Warning:.*)$/;
-	LINES_REGEX = /lines? ([0-9]+)/;
-	PACKAGE_REGEX = /^Package (\b.+\b) Warning/;
-	LogText = function (this: any, text: any) {
-		var i, wrappedLines;
+	const LOG_WRAP_LIMIT = 79;
+	const LATEX_WARNING_REGEX = /^LaTeX Warning: (.*)$/;
+	const HBOX_WARNING_REGEX = /^(Over|Under)full \\(v|h)box/;
+	const PACKAGE_WARNING_REGEX = /^(Package \b.+\b Warning:.*)$/;
+	const LINES_REGEX = /lines? ([0-9]+)/;
+	const PACKAGE_REGEX = /^Package (\b.+\b) Warning/;
+	const LogText = function (this: any, text: any) {
+		let i;
 		this.text = text.replace(/(\r\n)|\r/g, '\n');
-		wrappedLines = this.text.split('\n');
+		const wrappedLines = this.text.split('\n');
 		this.lines = [wrappedLines[0]];
 		i = 1;
 		while (i < wrappedLines.length) {
@@ -49,8 +41,8 @@ export default function () {
 			return this.linesUpToNextMatchingLine(/^ *$/);
 		};
 		this.linesUpToNextMatchingLine = function (match: any) {
-			var lines, nextLine;
-			lines = [];
+			let nextLine;
+			const lines = [];
 			nextLine = this.nextLine();
 			if (nextLine !== false) {
 				lines.push(nextLine);
@@ -64,12 +56,12 @@ export default function () {
 			return lines;
 		};
 	}).call(LogText.prototype);
-	state = {
+	const state = {
 		NORMAL: 0,
 		ERROR: 1
 	};
-	LatexParser = function (this: any, text: any, options: any) {
-		this.log = new LogText(text);
+	const LatexParser = function (this: any, text: any, options: any) {
+		this.log = new (LogText as any)(text);
 		this.state = state.NORMAL;
 		options = options || {};
 		this.fileBaseNames = options.fileBaseNames || [/compiles/, /\/usr\/local/];
@@ -81,7 +73,7 @@ export default function () {
 	};
 	(function (this: any) {
 		this.parse = function () {
-			var lineNo;
+			let lineNo;
 			while ((this.currentLine = this.log.nextLine()) !== false) {
 				if (this.state === state.NORMAL) {
 					if (this.currentLineIsError()) {
@@ -139,7 +131,6 @@ export default function () {
 			return !!this.currentLine.match(HBOX_WARNING_REGEX);
 		};
 		this.parseRunawayArgumentError = function () {
-			var lineNo;
 			this.currentError = {
 				line: null,
 				file: this.currentFilePath,
@@ -152,21 +143,20 @@ export default function () {
 			this.currentError.content += '\n';
 			this.currentError.content += this.log.linesUpToNextWhitespaceLine().join('\n');
 			this.currentError.raw += this.currentError.content;
-			lineNo = this.currentError.raw.match(/l\.([0-9]+)/);
+			const lineNo = this.currentError.raw.match(/l\.([0-9]+)/);
 			if (lineNo) {
 				this.currentError.line = parseInt(lineNo[1], 10);
 			}
 			return this.data.push(this.currentError);
 		};
 		this.parseSingleWarningLine = function (prefix_regex: any) {
-			var line, lineMatch, warning, warningMatch;
-			warningMatch = this.currentLine.match(prefix_regex);
+			const warningMatch = this.currentLine.match(prefix_regex);
 			if (!warningMatch) {
 				return;
 			}
-			warning = warningMatch[1];
-			lineMatch = warning.match(LINES_REGEX);
-			line = lineMatch ? parseInt(lineMatch[1], 10) : null;
+			const warning = warningMatch[1];
+			const lineMatch = warning.match(LINES_REGEX);
+			const line = lineMatch ? parseInt(lineMatch[1], 10) : null;
 			this.data.push({
 				line: line,
 				file: this.currentFilePath,
@@ -176,31 +166,24 @@ export default function () {
 			});
 		};
 		this.parseMultipleWarningLine = function () {
-			var line,
-				lineMatch,
-				packageMatch,
-				packageName,
-				prefixRegex,
-				raw_message,
-				warningMatch,
-				warning_lines;
-			warningMatch = this.currentLine.match(PACKAGE_WARNING_REGEX);
+			let warningMatch = this.currentLine.match(PACKAGE_WARNING_REGEX);
 			if (!warningMatch) {
 				return;
 			}
-			warning_lines = [warningMatch[1]];
-			lineMatch = this.currentLine.match(LINES_REGEX);
-			line = lineMatch ? parseInt(lineMatch[1], 10) : null;
-			packageMatch = this.currentLine.match(PACKAGE_REGEX);
-			packageName = packageMatch[1];
-			prefixRegex = new RegExp('(?:\\(' + packageName + '\\))*[\\s]*(.*)', 'i');
+			const warning_lines = [warningMatch[1]];
+			let lineMatch = this.currentLine.match(LINES_REGEX);
+			let line = lineMatch ? parseInt(lineMatch[1], 10) : null;
+			const packageMatch = this.currentLine.match(PACKAGE_REGEX);
+			const packageName = packageMatch[1];
+			const prefixRegex = new RegExp('(?:\\(' + packageName + '\\))*[\\s]*(.*)', 'i');
+			// eslint-disable-next-line no-extra-boolean-cast
 			while (!!(this.currentLine = this.log.nextLine())) {
 				lineMatch = this.currentLine.match(LINES_REGEX);
 				line = lineMatch ? parseInt(lineMatch[1], 10) : line;
 				warningMatch = this.currentLine.match(prefixRegex);
 				warning_lines.push(warningMatch[1]);
 			}
-			raw_message = warning_lines.join(' ');
+			const raw_message = warning_lines.join(' ');
 			this.data.push({
 				line: line,
 				file: this.currentFilePath,
@@ -210,9 +193,8 @@ export default function () {
 			});
 		};
 		this.parseHboxLine = function () {
-			var line, lineMatch;
-			lineMatch = this.currentLine.match(LINES_REGEX);
-			line = lineMatch ? parseInt(lineMatch[1], 10) : null;
+			const lineMatch = this.currentLine.match(LINES_REGEX);
+			const line = lineMatch ? parseInt(lineMatch[1], 10) : null;
 			this.data.push({
 				line: line,
 				file: this.currentFilePath,
@@ -222,16 +204,15 @@ export default function () {
 			});
 		};
 		this.parseParensForFilenames = function () {
-			var filePath, newFile, pos, previousFile, token;
-			pos = this.currentLine.search(/\(|\)/);
+			const pos = this.currentLine.search(/\(|\)/);
 			if (pos !== -1) {
-				token = this.currentLine[pos];
+				const token = this.currentLine[pos];
 				this.currentLine = this.currentLine.slice(pos + 1);
 				if (token === '(') {
-					filePath = this.consumeFilePath();
+					const filePath = this.consumeFilePath();
 					if (filePath) {
 						this.currentFilePath = filePath;
-						newFile = {
+						const newFile = {
 							path: filePath,
 							files: []
 						};
@@ -247,7 +228,7 @@ export default function () {
 					} else {
 						if (this.fileStack.length > 1) {
 							this.fileStack.pop();
-							previousFile = this.fileStack[this.fileStack.length - 1];
+							const previousFile = this.fileStack[this.fileStack.length - 1];
 							this.currentFilePath = previousFile.path;
 							this.currentFileList = previousFile.files;
 						}
@@ -257,11 +238,11 @@ export default function () {
 			}
 		};
 		this.consumeFilePath = function () {
-			var endOfFilePath, path;
-			if (!this.currentLine.match(/^\/?([^ \)]+\/)+/)) {
+			let path;
+			if (!this.currentLine.match(/^\/?([^ )]+\/)+/)) {
 				return false;
 			}
-			endOfFilePath = this.currentLine.search(RegExp(' |\\)'));
+			const endOfFilePath = this.currentLine.search(RegExp(' |\\)'));
 			path = void 0;
 			if (endOfFilePath === -1) {
 				path = this.currentLine;
@@ -273,16 +254,15 @@ export default function () {
 			return path;
 		};
 		return (this.postProcess = function (data: any) {
-			var all, errors, hashEntry, hashes, i, typesetting, warnings;
-			all = [];
-			errors = [];
-			warnings = [];
-			typesetting = [];
-			hashes = [];
-			hashEntry = function (entry: any) {
+			const all = [];
+			const errors = [];
+			const warnings = [];
+			const typesetting = [];
+			const hashes = [];
+			const hashEntry = function (entry: any) {
 				return entry.raw;
 			};
-			i = 0;
+			let i = 0;
 			while (i < data.length) {
 				if (this.ignoreDuplicates && hashes.indexOf(hashEntry(data[i])) > -1) {
 					i++;
@@ -309,7 +289,7 @@ export default function () {
 		});
 	}).call(LatexParser.prototype);
 	LatexParser.parse = function (text: any, options: any) {
-		return new LatexParser(text, options).parse();
+		return new (LatexParser as any)(text, options).parse();
 	};
 	return LatexParser;
 }

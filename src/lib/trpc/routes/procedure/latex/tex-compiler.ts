@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* Load dependencies */
 
 import { spawn } from 'child_process';
@@ -16,11 +18,11 @@ import path from 'path';
  */
 
 export function compileTex(file: string) {
-	var parsedFile = path.parse(file),
+	const parsedFile = path.parse(file),
 		outputFile = path.join(parsedFile.dir, path.basename(file, path.extname(file)) + '.pdf'),
 		defaultOptions = ['-f', '-interaction=nonstopmode', '-shell-escape'];
-	let engine = 'latexmk';
-	let runs = [
+	const engine = 'latexmk';
+	const runs = [
 		{
 			runs: 1,
 			options: defaultOptions //.concat(["-draftmode"]),
@@ -31,9 +33,9 @@ export function compileTex(file: string) {
 		}
 	];
 
-	var optionsForMapping: any[] = [];
+	const optionsForMapping: any[] = [];
 	runs.map(function (currentValue) {
-		for (var i = 0; i < currentValue.runs; i++) {
+		for (let i = 0; i < currentValue.runs; i++) {
 			optionsForMapping.push(currentValue.options);
 		}
 	});
@@ -44,10 +46,10 @@ export function compileTex(file: string) {
 		}
 		options.push(file.substring(parsedFile.dir.length + 1));
 
-		var texSpawn = spawn(engine, options, { cwd: parsedFile.dir });
+		const texSpawn = spawn(engine, options, { cwd: parsedFile.dir });
 
-		var texPromise = new Promise(function (resolve, reject) {
-			var stdrerrMessage = '',
+		const texPromise = new Promise(function (resolve, reject) {
+			let stdrerrMessage = '',
 				stdoutMessage = '';
 			texSpawn.stderr.on('data', function (data: any) {
 				stdrerrMessage += data.toString();
@@ -66,9 +68,9 @@ export function compileTex(file: string) {
 		return texPromise;
 	}
 
-	var resultPromise = texPromise(optionsForMapping[0]);
+	let resultPromise = texPromise(optionsForMapping[0]);
 
-	for (var i = 1; i < optionsForMapping.length; i++) {
+	for (let i = 1; i < optionsForMapping.length; i++) {
 		resultPromise = resultPromise.then(function () {
 			return texPromise(optionsForMapping[i]);
 		});

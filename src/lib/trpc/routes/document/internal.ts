@@ -256,12 +256,16 @@ export async function cleanup() {
 			return;
 		}
 
-		const truncated_document: FrontDocument = {
-			...doc.toObject(),
-			author: doc.author.toString()
-		};
-
-		console.log('Deletions of ' + JSON.stringify({ ...truncated_document, bytes: undefined }));
+		console.log(
+			'Deletions of ' +
+				JSON.stringify({
+					...{
+						...doc.toObject(),
+						author: doc.author.toString()
+					},
+					bytes: undefined
+				})
+		);
 
 		doc.deleteOne().exec();
 	});

@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { globalRouter, publicProcedure } from '$trpc/router';
+import { z } from 'zod';
 import { create, edit, get, get_exercises, get_tags } from './internal';
 
 export const router = globalRouter({
@@ -34,7 +34,7 @@ export const router = globalRouter({
 			const input = req.input;
 			return await get(input.id, input.token);
 		}),
-	list_tags: publicProcedure.query(async (req): Promise<String[]> => {
+	list_tags: publicProcedure.query(async (): Promise<string[]> => {
 		return await get_tags();
 	}),
 

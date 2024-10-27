@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { globalRouter, publicProcedure } from '$trpc/router';
+import { z } from 'zod';
 import {
 	add_child,
 	create,
@@ -14,13 +14,13 @@ import {
 
 const bytes_validation_zod = z
 	.any()
-	.refine((val: any) => val !== undefined /* or some other check to ensure proper format */, {
+	.refine((val: unknown) => val !== undefined /* or some other check to ensure proper format */, {
 		message: 'bytes must be defined'
 	});
 
 const metadata_validation_zod = z
 	.any()
-	.refine((val: any) => val !== undefined && typeof val === 'object', {
+	.refine((val: unknown) => val !== undefined && typeof val === 'object', {
 		message: 'Metadata should be a valid json object'
 	});
 
@@ -37,7 +37,13 @@ export const router = globalRouter({
 		)
 		.mutation((req) => {
 			const input = req.input;
-			return create(input.token, input.parent, input.is_private, input.bytes, input.metadata);
+			return create(
+				input.token,
+				input.parent,
+				input.is_private,
+				input.bytes as Buffer,
+				input.metadata
+			);
 		}),
 
 	link: publicProcedure
@@ -76,7 +82,7 @@ export const router = globalRouter({
 		.mutation(async (req) => {
 			const input = req.input;
 			if (input.bytes == null && input.metadata == null) return;
-			return await set(input.document_id, input.token, input.bytes, input.metadata);
+			return await set(input.document_id, input.token, input.bytes as Buffer, input.metadata);
 		}),
 
 	unlink: publicProcedure
@@ -124,10 +130,15 @@ export const router = globalRouter({
 		.mutation(async (req) => {
 			const { document_id, token } = req.input;
 
-			if ((req.input as any).name == null) {
-				return await remove_child_from_name(document_id, token, (req.input as any).name);
+			const name = 'name' in req.input ? req.input.name : undefined;
+			const child_id = 'child_id' in req.input ? req.input.child_id : undefined;
+
+			if (name) {
+				return await remove_child_from_name(document_id, token, name);
+			} else if (child_id) {
+				return await remove_child_from_id(document_id, token, child_id);
 			} else {
-				return await remove_child_from_id(document_id, token, (req.input as any).child_id);
+				throw new Error();
 			}
 		}),
 

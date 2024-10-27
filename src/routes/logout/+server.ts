@@ -1,4 +1,5 @@
-export function POST({ cookies }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function POST({ cookies }: any) {
 	cookies.delete('token', {
 		path: '/',
 		httpOnly: true,
