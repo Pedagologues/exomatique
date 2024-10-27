@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import { loginFromToken } from '$trpc/routes/user/internal';
+import mongoose from 'mongoose';
 import Document from './db';
 import {
 	ChildExist,
@@ -24,7 +24,7 @@ export async function get(document_id: string, access_token?: string): Promise<F
 	if (document?.is_private) {
 		if (access_token == null) throw new MissingPermission(document_id, 'READ');
 
-		let current_user = await loginFromToken(access_token).then((v) => v._id);
+		const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 		if (current_user != document.author.toString())
 			throw new MissingPermission(document_id, 'READ');
@@ -32,7 +32,7 @@ export async function get(document_id: string, access_token?: string): Promise<F
 
 	return {
 		author: document.author.toString(),
-		bytes: document?.bytes.toJSON().data,
+		bytes: document?.bytes?.toJSON()?.data || [],
 		metadata: JSON.parse(document.metadata),
 		children: new Map(Array.from(document.children, ([key, value]) => [key, value.toString()])),
 		is_private: document?.is_private
@@ -43,17 +43,17 @@ export async function set(
 	document_id: string,
 	access_token: string,
 	bytes?: Buffer,
-	metadata?: any
+	metadata?: unknown
 ) {
 	const document = await Document.findById(document_id);
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v._id);
+	const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString()) throw new MissingPermission(document_id, 'WRITE');
 
-	let v = await Document.updateOne(
+	const v = await Document.updateOne(
 		{ _id: document_id },
 		{
 			$set: {
@@ -71,19 +71,19 @@ export async function set(
 
 export async function create(
 	access_token: string,
-	parent: string,
+	parent: string | undefined,
 	is_private: boolean,
 	bytes?: Buffer,
-	metadata?: any
+	metadata?: unknown
 ): Promise<string> {
-	let author = await loginFromToken(access_token).then((v) => v._id);
+	const author = await loginFromToken(access_token).then((v) => v._id);
 
 	const document = await Document.create({
 		author,
 		is_private,
-		bytes,
+		bytes: bytes || Buffer.from([]),
 		metadata: metadata == null ? '{}' : JSON.stringify(metadata),
-		parents: [parent],
+		parents: parent ? [parent] : [],
 		children: [],
 		created: new Date(),
 		updated: new Date()
@@ -97,7 +97,7 @@ export async function link(document_id: string, parent: string, access_token: st
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v._id);
+	const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString()) throw new MissingPermission(document_id, 'LINK');
 
@@ -116,7 +116,7 @@ export async function unlink(document_id: string, parent: string, access_token: 
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v._id);
+	const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'UNLINK');
@@ -145,7 +145,7 @@ export async function add_child(
 
 	if (child_document == null) throw new DocumentNotFound(child_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v._id);
+	const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'ADD_CHILD');
@@ -171,7 +171,7 @@ export async function remove_child_from_name(
 
 	const child_id = document.children.get(name);
 
-	let current_user = await loginFromToken(access_token).then((v) => v._id);
+	const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'REMOVE_CHILD');
@@ -195,7 +195,7 @@ export async function remove_child_from_id(
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let name = Array.from(document.children.entries())
+	const name = Array.from(document.children.entries())
 		.filter((k, v) => v != null)
 		.find((k, v) => v.toString() === child_id)?.[0];
 
@@ -209,7 +209,7 @@ export async function get_children(document_id: string, access_token: string) {
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let current_user = await loginFromToken(access_token).then((v) => v._id);
+	const current_user = await loginFromToken(access_token).then((v) => v._id);
 
 	if (current_user != document.author.toString())
 		throw new MissingPermission(document_id, 'LIST_CHILDREN');
@@ -221,11 +221,11 @@ export async function delete_document(document_id: string, recursive: boolean) {
 
 	if (document == null) throw new DocumentNotFound(document_id);
 
-	let children = new Map(document.children);
+	const children = new Map(document.children);
 	document.children = new Map();
 
 	children.forEach(async (_, v) => {
-		let child_document = await Document.findById(v);
+		const child_document = await Document.findById(v);
 		if (child_document == null) return;
 		child_document.parents = child_document.parents.filter((v) => v != document_id);
 		if (recursive && child_document.parents.length == 0) await delete_document(v, true);
@@ -237,14 +237,14 @@ export async function delete_document(document_id: string, recursive: boolean) {
 const TIME_BEFORE_DELETION = 7 * 24 * 60 * 1000;
 
 export async function cleanup() {
-	let documents = await Document.find({ parents: [] });
+	const documents = await Document.find({ parents: [] });
 
 	if (documents.length === 0) {
 		console.log('No documents were found for removal . . .');
 		return;
 	}
 
-	let date = new Date();
+	const date = new Date();
 
 	documents.forEach((doc) => {
 		if (Math.abs(doc.updated.getTime() - date.getTime()) < TIME_BEFORE_DELETION) {
@@ -256,7 +256,7 @@ export async function cleanup() {
 			return;
 		}
 
-		let truncated_document: FrontDocument = {
+		const truncated_document: FrontDocument = {
 			...doc.toObject(),
 			author: doc.author.toString()
 		};

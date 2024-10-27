@@ -37,9 +37,11 @@
 	"dependencies": {
 		"@editorjs/editorjs": "^2.30.5",
 		"@editorjs/header": "^2.8.7",
+		"@floating-ui/dom": "^1.6.11",
 		"@trpc/client": "^10.45.2",
 		"@trpc/server": "^10.45.2",
 		"bcrypt": "^5.1.1",
+		"check-password-strength": "^2.0.10",
 		"cron": "^3.1.7",
 		"editorjs-latex": "^1.0.5",
 		"mongoose": "^8.5.2",

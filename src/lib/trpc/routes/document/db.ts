@@ -12,7 +12,7 @@ const Document = connection.model(
 		},
 		bytes: {
 			type: Buffer,
-			required: true
+			required: false
 		},
 		is_private: {
 			type: Boolean,
