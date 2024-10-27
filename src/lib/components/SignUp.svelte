@@ -2,7 +2,6 @@
 	import { enhance } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { trpc } from '$trpc/client';
 	let q;
 	$: q = $page.url.searchParams.get('q');
 
@@ -31,6 +30,8 @@
 					}
 					await goto(path, { replaceState: false });
 					await invalidateAll();
+				} else if (result.type == 'error') {
+					error = true;
 				}
 			};
 		}}

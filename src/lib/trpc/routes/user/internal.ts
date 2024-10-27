@@ -1,6 +1,6 @@
 import { compare, hash } from '$trpc/crypto';
 import Accounts from './db';
-import type { DbUser, User } from './types';
+import type { User } from './types';
 
 const expiration = 7 * 24 * 3600;
 
@@ -49,13 +49,14 @@ export async function tokenToUser(token: string): Promise<User | undefined> {
 
 export async function register(username: string, password: string): Promise<boolean> {
 	const b = await Accounts.exists({ username: username });
-	let exist = b != null;
-	if (!exist)
+	let exist = b == null;
+	console.log('TESSSTTTT ' + exist);
+	if (exist)
 		await Accounts.create({
 			username: username,
 			password: await hash(password)
 		});
-	return exist;
+	return !exist;
 }
 
 export async function isUsernameAvailable(username: string): Promise<boolean> {

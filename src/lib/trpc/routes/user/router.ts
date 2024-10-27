@@ -1,6 +1,6 @@
+import { globalRouter, publicProcedure } from '$trpc/router';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { globalRouter, publicProcedure } from '$trpc/router';
 
 import { isUsernameAvailable, loginFromPassword, loginFromToken, register } from './internal';
 import type { User } from './types';
@@ -29,10 +29,11 @@ export const router = globalRouter({
 				password: z.string()
 			})
 		)
-		.mutation((req) => {
+		.mutation(async (req) => {
 			const { username, password } = req.input;
-			register(username, password);
+			const b = await register(username, password);
 			console.log("Someone is trying to register a new user : '%s'", username);
+			return b;
 		}),
 	login: publicProcedure
 		.input(

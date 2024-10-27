@@ -1,20 +1,33 @@
 <script lang="ts">
-	import { LightSwitch } from '@skeletonlabs/skeleton';
-	import { AppBar } from '@skeletonlabs/skeleton';
-	import { page } from '$app/stores';
 	import { goto, invalidateAll } from '$app/navigation';
-	import '../app.css';
-	import { user } from './store';
-	import { get } from 'svelte/store';
+	import { page } from '$app/stores';
 	import { trpc } from '$trpc/client';
+	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
+	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
+	import '../app.css';
 	import type { User } from '../lib/trpc/routes/user/types';
+	import { user } from './store';
 
 	export let data;
 
 	function onLoginClick() {
-		if ($page.url.pathname === '/' || $page.url.pathname === '/login')
+		if (
+			$page.url.pathname === '/' ||
+			$page.url.pathname === '/login' ||
+			$page.url.pathname === '/register'
+		)
 			goto(`/login`, { replaceState: false });
 		else goto(`/login?q=${btoa($page.url.pathname)}`, { replaceState: false });
+	}
+
+	function onRegisterClick() {
+		if (
+			$page.url.pathname === '/' ||
+			$page.url.pathname === '/login' ||
+			$page.url.pathname === '/register'
+		)
+			goto(`/register`, { replaceState: false });
+		else goto(`/register?q=${btoa($page.url.pathname)}`, { replaceState: false });
 	}
 
 	async function onLogoutClick() {
@@ -41,6 +54,9 @@
 				});
 		}
 	}
+
+	import { storePopup } from '@skeletonlabs/skeleton';
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
 
 <div class="flex h-screen flex-col">
@@ -62,6 +78,8 @@
 		<svelte:fragment slot="trail">
 			{#if !data.token}
 				<button type="button" class="variant-filled btn" on:click={onLoginClick}>Login</button>
+				<button type="button" class="variant-filled btn" on:click={onRegisterClick}>Register</button
+				>
 			{:else}
 				<button type="button" class="variant-filled btn" on:click={onLogoutClick}>Logout</button>
 			{/if}
