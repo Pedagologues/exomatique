@@ -9,7 +9,7 @@ import {
 	ModificationFailed
 } from './error';
 import './task';
-import type { Document as FrontDocument } from './types';
+import type { IDocument as FrontDocument } from './types';
 
 export async function exist(document_id: string) {
 	const document = await Document.findById(document_id);

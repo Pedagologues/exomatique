@@ -1,4 +1,4 @@
-export type Document = {
+export type IDocument = {
 	author: string;
 	bytes: number[];
 	is_private: boolean;
