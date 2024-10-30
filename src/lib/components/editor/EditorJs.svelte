@@ -7,6 +7,7 @@
 	import { createEditor } from './svelte_editorjs';
 
 	export let data: Writable<OutputData>;
+	export let readOnly = false;
 
 	let response = createEditor({
 		tools: {
@@ -21,7 +22,8 @@
 				class: Header
 			}
 		},
-		data: $data
+		data: $data,
+		readOnly
 	});
 
 	const { editor } = response;

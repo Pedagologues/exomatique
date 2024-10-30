@@ -13,5 +13,13 @@ export function reroute({ url }) {
 			else return path + '/block';
 			//TODO change to dynamic document type
 		}
+	if (path.startsWith('/exercises/view/'))
+		if (path.substring('/exercises/view/'.length).includes('/')) return '/exercises/view/';
+		else {
+			const id = path.substring('/exercises/view/'.length);
+			if (!get(local_documents).find((x) => x[0] == id)) return '/exercises/view/';
+			else return path + '/block';
+			//TODO change to dynamic document type
+		}
 	return url.pathname;
 }

@@ -29,9 +29,11 @@
 			filter: {
 				title,
 				tags: selected_tags
-			}
+			},
+			token: $user?.auth_token
 		})
 		.then((v) => {
+			console.log(v);
 			exercises = v;
 		});
 
@@ -108,8 +110,8 @@
 	<div class="bg-surface-100-800-token arrow" />
 </div>
 
-<div class="flex flex-row">
-	<div class="card m-5 w-3/12 p-4">
+<div class="m-5 flex flex-row gap-10">
+	<div class="card w-3/12 p-4">
 		Titre :
 		<input class="input p-1 pl-2" type="text" placeholder="Titre" bind:value={title} />
 
@@ -120,7 +122,7 @@
 		/>
 	</div>
 
-	<div class="flex flex-col">
+	<div class="flex flex-1 flex-col">
 		{#each exercises as exercise}
 			<ExercisePane {exercise} />
 		{/each}
