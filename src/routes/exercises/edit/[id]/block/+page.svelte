@@ -17,8 +17,11 @@
 
 	let block_data: Writable<OutputData> = derived_writable(
 		exercise_data,
-		() => $exercise_data[2] as OutputData,
-		(v) => ($exercise_data[2] = v)
+		() => (($exercise_data[2] as any)?.data || {}) as OutputData,
+		(v) => {
+			($exercise_data[2] as any).data = v;
+			($exercise_data[2] as any).updated = new Date().getTime();
+		}
 	);
 </script>
 

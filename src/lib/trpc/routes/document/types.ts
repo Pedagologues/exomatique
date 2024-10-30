@@ -4,4 +4,6 @@ export type IDocument = {
 	is_private: boolean;
 	children: Map<string, string>;
 	metadata: unknown;
+	created: number;
+	updated: number;
 };

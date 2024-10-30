@@ -35,7 +35,9 @@ export async function get(document_id: string, access_token?: string): Promise<F
 		bytes: document?.bytes?.toJSON()?.data || [],
 		metadata: JSON.parse(document.metadata),
 		children: new Map(Array.from(document.children, ([key, value]) => [key, value.toString()])),
-		is_private: document?.is_private
+		is_private: document?.is_private,
+		created: document?.created.getTime(),
+		updated: document?.updated.getTime()
 	};
 }
 
