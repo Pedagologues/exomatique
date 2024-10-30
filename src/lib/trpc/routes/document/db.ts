@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const connection = createConnection();
 
 const Document = connection.model(
-	'document',
+	'document_',
 	new mongoose.Schema({
 		author: {
 			type: mongoose.Schema.ObjectId,

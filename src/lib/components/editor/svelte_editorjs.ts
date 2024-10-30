@@ -1,7 +1,7 @@
 import type EditorJS from '@editorjs/editorjs';
 import type { EditorConfig, OutputData } from '@editorjs/editorjs';
-import { writable } from 'svelte/store';
 import type { Readable, Writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export type EditorStore = {
 	instance?: EditorJS;
@@ -40,7 +40,8 @@ export function createEditor(configuration: SvelteEditorConfig = {}): EditorResp
 		update: updateData
 	} = writable<OutputData>(initialData);
 
-	let newSetData = (data: OutputData) => {
+	const newSetData = (data: OutputData) => {
+		console.log('Update ?');
 		updateData((oldData) => ({ ...oldData, ...data }));
 		editorInstance?.render(data);
 	};

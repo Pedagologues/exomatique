@@ -11,6 +11,7 @@ import {
 	set,
 	unlink
 } from './internal';
+import type { IDocument } from './types';
 
 const bytes_validation_zod = z
 	.any()
@@ -65,7 +66,7 @@ export const router = globalRouter({
 				token: z.optional(z.string())
 			})
 		)
-		.query(async (req) => {
+		.query(async (req): Promise<IDocument> => {
 			const input = req.input;
 			return await get(input.document_id, input.token);
 		}),

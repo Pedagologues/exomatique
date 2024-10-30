@@ -5,7 +5,7 @@ import Exercise from './db';
 import { ExerciseNotFound, MissingPermission } from './error';
 import type { IExercise } from './types';
 
-export async function create(token: string) {
+export async function create(token: string): Promise<IExercise> {
 	const author = await loginFromToken(token).then((v) => v._id);
 
 	const exercise = await Exercise.create({
@@ -26,7 +26,15 @@ export async function create(token: string) {
 
 	exercise.directory = new mongoose.Types.ObjectId(document);
 	await exercise.save();
-	return exercise._id;
+
+	return {
+		id: exercise.id,
+		title: exercise.title,
+		author: exercise.author.toString(),
+		visibility: (exercise.visibility as 'PUBLIC' | 'PROTECTED' | 'PRIVATE') || 'PRIVATE',
+		tags: (exercise.tags.prototype || []).map((v) => String(v)),
+		directory: exercise.directory?.toString()
+	};
 }
 
 export async function edit(
@@ -48,6 +56,7 @@ export async function edit(
 	await exercise.save();
 
 	return {
+		id: exercise.id,
 		title: exercise.title,
 		author: exercise.author.toString(),
 		directory: exercise.directory?.toString(),
@@ -68,6 +77,7 @@ export async function get(id: string, token?: string): Promise<IExercise> {
 	}
 
 	return {
+		id: exercise.id,
 		title: exercise.title,
 		author: exercise.author.toString(),
 		visibility: (exercise.visibility as 'PUBLIC' | 'PROTECTED' | 'PRIVATE') || 'PRIVATE',
@@ -114,6 +124,7 @@ export async function get_exercises(
 	const query = await Exercise.find(filter_object).sort({ _id: 1 }).limit(end).skip(begin);
 	return query.map((v) => {
 		return {
+			id: v.id,
 			title: v.title,
 			author: v.author.toString(),
 			visibility: (v.visibility as 'PUBLIC' | 'PROTECTED' | 'PRIVATE') || 'PRIVATE',

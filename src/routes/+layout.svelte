@@ -4,7 +4,7 @@
 	import { trpc } from '$trpc/client';
 	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import '@fortawesome/fontawesome-free/css/all.css';
-	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
+	import { AppBar, initializeStores, LightSwitch } from '@skeletonlabs/skeleton';
 	import '../app.css';
 	import type { User } from '../lib/trpc/routes/user/types';
 	import { user } from './store';
@@ -58,6 +58,7 @@
 
 	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+	initializeStores();
 </script>
 
 <div class="flex h-screen flex-col">
