@@ -1,4 +1,5 @@
-import type { Preview } from '@storybook/svelte'
+import type { Preview, SvelteRenderer } from '@storybook/svelte'
+import { withThemeByDataAttribute } from '@storybook/addon-themes';
 
 import { i18n } from "../src/lib/i18n";
 import { availableLanguageTags } from "../src/lib/paraglide/runtime";
@@ -32,7 +33,14 @@ const preview: Preview = {
   decorators: [(storyFn, context) => {
     lang_store.set(context.globals.locale);
     return Wrapper
-  }],
+  }, withThemeByDataAttribute<SvelteRenderer>({
+    themes: {
+      cerberus: 'cerberus'
+    },
+    defaultTheme: 'cerberus',
+    parentSelector: 'body',
+    attributeName: 'data-theme'
+  })],
 };
 
 export default preview;

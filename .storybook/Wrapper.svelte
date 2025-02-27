@@ -5,7 +5,7 @@
 	import { setLanguageTag } from './../src/lib/paraglide/runtime.js';
 	import { get } from 'svelte/store';
 
-	$effect(() => setLanguageTag($lang_store as any));
+	$effect(() => setLanguageTag(($lang_store as any) || 'en'));
 </script>
 
 {#key $lang_store}
