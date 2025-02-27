@@ -2,5 +2,7 @@
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"login": "Se Connecter",
 	"register": "S'enregistrer",
-	"logout": "Se Déconnecter"
+	"logout": "Se Déconnecter",
+	"welcome": "Bienvenus ,",
+	"home": "Accueil"
 }
