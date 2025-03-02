@@ -5,8 +5,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
-		sveltekit(),
 		tailwindcss(),
+		sveltekit(),
 		paraglide({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide'
@@ -15,6 +15,13 @@ export default defineConfig({
 	server: {
 		fs: {
 			allow: ["./static/*"]
+		}
+	},
+	optimizeDeps: {
+		esbuildOptions: {
+			loader: {
+				'.keep': 'empty'
+			}
 		}
 	}
 });

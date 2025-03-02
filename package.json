@@ -58,6 +58,7 @@
 		"vitest": "^3.0.7"
 	},
 	"dependencies": {
+		"@exomatique/editor": "^1.1.2",
 		"@inlang/paraglide-sveltekit": "^0.15.5",
 		"@libsql/client": "^0.14.0",
 		"@node-rs/argon2": "^2.0.2",
