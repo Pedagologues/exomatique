@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
@@ -12,7 +12,8 @@ export const session = sqliteTable('session', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
+	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+	persistent: integer('remember_me', { mode: 'boolean' }).notNull()
 });
 
 export type Session = typeof session.$inferSelect;

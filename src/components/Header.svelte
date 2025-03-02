@@ -48,7 +48,7 @@
 </script>
 
 {#key languageTag()}
-	<div class="header bg-surface-900 mb-2 items-center gap-5">
+	<div class="header bg-surface-900 items-center gap-5">
 		<a href="/"><Icon size={'extra-small'} /></a>
 		<div class="grow justify-evenly">
 			{#each pages as page}

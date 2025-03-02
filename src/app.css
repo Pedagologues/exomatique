@@ -6,3 +6,14 @@
 @import '@skeletonlabs/skeleton/themes/cerberus';
 
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
+input:-webkit-autofill {
+    background-color: var(--color-surface-900) !important;
+    box-shadow: 0 0 0px 1000px var(--color-surface-900) inset !important;
+}
+
+@layer utilities {
+    input:-webkit-autofill {
+        @apply !bg-white !text-black;
+    }
+}
